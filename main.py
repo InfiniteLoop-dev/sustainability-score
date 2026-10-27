@@ -1,6 +1,8 @@
 from scoring import calculate_score, get_rating
 from input_utils import get_non_negative_int
 from storage import save_record, load_records
+from analysis import calculate_statistics
+from visualization import plot_history
 
 
 def main():
@@ -38,5 +40,17 @@ def main():
             f"Rating = {record['rating']}"
         )
 
+    statistics = calculate_statistics(records)
+
+    if statistics is None:
+        print("No records yet.")
+    else:
+        print("\nYour statistics:")
+        print(f"Number of records: {statistics['count']}")
+        print(f"Average score: {statistics['average']:.2f}")
+        print(f"Highest score: {statistics['highest']}")
+        print(f"Lowest score: {statistics['lowest']}")
+
+    plot_history(records)
 if __name__ == "__main__":
     main()
