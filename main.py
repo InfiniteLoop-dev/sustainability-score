@@ -1,5 +1,6 @@
 from scoring import calculate_score, get_rating
 from input_utils import get_non_negative_int
+from storage import save_record, load_records
 
 
 def main():
@@ -24,16 +25,18 @@ def main():
     print(f"Your sustainability score is {score}.")
     print(f"Rating: {rating}")
 
-    with open("records.txt", "a+", encoding="utf-8") as file:
-        file.seek(0)
-        records = file.readlines()
+    week = save_record(score, rating)
+    print(f"Week {week} record saved successfully!")
+    records = load_records()
 
-        next_week = len(records) + 1
+    print("\nYour history:")
 
-        file.write(f"Week {next_week}: Score = {score}\n")
-
-    print(f"Week {next_week} record saved successfully!")
-
+    for record in records:
+        print(
+            f"Week {record['week']}: "
+            f"Score = {record['score']}, "
+            f"Rating = {record['rating']}"
+        )
 
 if __name__ == "__main__":
     main()
