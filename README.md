@@ -13,6 +13,8 @@ This project is part of my Python learning journey and preparation for a sustain
 - Display historical records.
 - Calculate the average, highest, and lowest scores.
 - Display a line chart of score history using Matplotlib.
+- Generate personalized environmental advice using the Gemini API.
+- Show a helpful message when the API key is missing or an API error occurs.
 
 ## Scoring System
 
@@ -34,19 +36,41 @@ All three inputs must be non-negative integers. The calculated score can be nega
 1. Install Python.
 2. Download or clone this repository.
 3. Open a terminal in the project folder.
-4. Install the required dependency:
+4. Install the dependencies:
 
    ```bash
    python -m pip install -r requirements.txt
    ```
 
-5. Run the application:
+5. Configure your Gemini API key as described below.
+6. Run the application:
 
    ```bash
    python main.py
    ```
 
-A chart window will open after the results are displayed. Close the chart window to finish the program.
+A chart window will open after the results are displayed.
+Close the chart window to finish the program.
+
+### Configure the Gemini API key
+
+Create an API key in Google AI Studio.
+
+In PyCharm, open:
+Run → Edit Configurations → select main → Environment variables.
+
+Add an environment variable named `GEMINI_API_KEY` and paste your
+key into its value field. Save the configuration and run main
+using that configuration.
+
+The PyCharm setting applies to that run configuration.
+To run `python main.py` from a terminal, configure
+`GEMINI_API_KEY` in the terminal environment separately.
+
+Do not put the key in source code or commit it to Git.
+
+API availability and usage limits depend on your account and selected model.
+The application sends the environmental habit inputs to Google's Gemini API.
 
 ## Example
 
@@ -109,7 +133,6 @@ Historical data is stored locally and is not included in the repository.
 
 ## Future Improvements
 
-- Add AI-generated personalized environmental advice.
 - Record dates and the original environmental habit inputs.
 - Improve handling of manually edited or damaged CSV files.
 - Build a web interface.

@@ -1,1 +1,2 @@
 matplotlib==3.11.2
+google-genai==2.34.0

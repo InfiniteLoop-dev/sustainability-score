@@ -3,7 +3,7 @@ from input_utils import get_non_negative_int
 from storage import save_record, load_records
 from analysis import calculate_statistics
 from visualization import plot_history
-from ai_advice import build_advice_prompt
+from ai_advice import build_advice_prompt, generate_advice
 
 
 def main():
@@ -58,8 +58,11 @@ def main():
         recycling=recycling
     )
 
-    print("\nAI prompt preview:")
-    print(prompt)
+    print("\nGenerating AI advice...")
+    advice = generate_advice(prompt)
+
+    print("\nAI advice:")
+    print(advice)
 
     plot_history(records)
 if __name__ == "__main__":

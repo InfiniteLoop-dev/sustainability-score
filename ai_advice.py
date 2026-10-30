@@ -1,3 +1,7 @@
+import os
+from google import genai
+from google.genai import errors
+
 def build_advice_prompt(plastic_bottles, public_transport, recycling):
     return f"""
 You are helping a university student improve their environmental habits.
@@ -11,4 +15,24 @@ Give two practical suggestions based on these habits.
 Keep each suggestion within two sentences.
 Do not assume public transport is always available.
 Do not invent carbon reduction figures.
+
+Do not assume campus facilities or local recycling services are available.
+Use conditional wording when availability is unknown.
+Do not guarantee cost savings or environmental outcomes.
 """
+
+def generate_advice(prompt):
+    if not os.getenv("GEMINI_API_KEY"):
+        return "AI advice unavailable: API key is not configured."
+
+    try:
+        with genai.Client() as client:
+            response = client.interactions.create(
+                model="gemini-3.8-flash",
+                input=prompt
+            )
+
+            return response.output_text or "No advice was returned."
+
+    except errors.APIError:
+        return "AI advice unavailable: the API request failed. Please try again later."
