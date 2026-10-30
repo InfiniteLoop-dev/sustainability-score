@@ -1,2 +1,13 @@
 # Local practice scripts
 *_practice.py
+
+# Local data and secrets
+history.csv
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
