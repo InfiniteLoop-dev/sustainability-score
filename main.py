@@ -3,6 +3,7 @@ from input_utils import get_non_negative_int
 from storage import save_record, load_records
 from analysis import calculate_statistics
 from visualization import plot_history
+from ai_advice import build_advice_prompt
 
 
 def main():
@@ -50,6 +51,15 @@ def main():
         print(f"Average score: {statistics['average']:.2f}")
         print(f"Highest score: {statistics['highest']}")
         print(f"Lowest score: {statistics['lowest']}")
+
+    prompt = build_advice_prompt(
+        plastic_bottles=plastic_bottles,
+        public_transport=public_transport,
+        recycling=recycling
+    )
+
+    print("\nAI prompt preview:")
+    print(prompt)
 
     plot_history(records)
 if __name__ == "__main__":
