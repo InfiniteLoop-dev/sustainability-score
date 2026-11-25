@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sustainability Score Calculator</title>
+  <style>
+    :root {
+      --bg: #f4f7f4;
+      --surface: #ffffff;
+      --surface-soft: #f9fbf9;
+      --border: #dce5dc;
+      --text: #1a281d;
+      --muted: #5c6f60;
+      --primary: #15803d;
+      --primary-hover: #166534;
+      --primary-soft: #dcfce7;
+      --accent: #0f766e;
+      --danger: #b91c1c;
+      --danger-soft: #fee2e2;
+      --warn: #b45309;
+      --warn-soft: #fef3c7;
+      --info: #1d4ed8;
+      --info-soft: #dbeafe;
+      --shadow: 0 4px 18px rgba(20, 45, 25, 0.06);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .title-group h1 {
+      margin: 0;
+      font-size: 1.65rem;
+      letter-spacing: -0.02em;
+      color: #11381d;
+    }
+
+    .title-group p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .formula-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      box-shadow: var(--shadow);
+    }
+
+    .formula-pill code {
+      color: var(--primary);
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .grid-main {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .grid-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card + .card {
+      margin-top: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 650;
+      color: #14361f;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+
+    .field small {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    input[type="number"],
+    input[type="date"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: 0.96rem;
+      color: var(--text);
+      background: var(--surface-soft);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="number"]:focus,
+    input[type="date"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.14);
+      background: #fff;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    .preview-box {
+      background: var(--surface-soft);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+
+    .preview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preview-score {
+      font-size: 1.45rem;
+      font-weight: 750;
+      color: var(--text);
+    }
+
+    .preview-breakdown {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 9px;
+      padding: 9px 15px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s, opacity 0.15s;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      flex: 1;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #ebf1eb;
+      color: var(--text);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #dce6dc;
+    }
+
+    .btn-danger-outline {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid #f3c5c5;
+      padding: 6px 11px;
+      font-size: 0.82rem;
+    }
+
+    .btn-danger-outline:hover:not(:disabled) {
+      background: var(--danger-soft);
+    }
+
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      border-radius: 7px;
+    }
+
+    .status-banner {
+      margin-top: 12px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      display: none;
+    }
+
+    .status-banner.show {
+      display: block;
+    }
+
+    .status-banner.success {
+      background: var(--primary-soft);
+      color: #14532d;
+    }
+
+    .status-banner.error {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kpi-value {
+      font-size: 1.45rem;
+      font-weight: 750;
+      margin-top: 4px;
+      color: #12331c;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .badge-excellent {
+      background: var(--primary-soft);
+      color: #166534;
+    }
+
+    .badge-good {
+      background: var(--info-soft);
+      color: #1e40af;
+    }
+
+    .badge-fair {
+      background: var(--warn-soft);
+      color: #92400e;
+    }
+
+    .badge-needs {
+      background: var(--danger-soft);
+      color: #991b1b;
+    }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    svg.chart-svg {
+      width: 100%;
+      min-width: 440px;
+      height: 250px;
+      display: block;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(17, 36, 22, 0.94);
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      display: none;
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    .advice-box {
+      background: var(--surface-soft);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid #edf2ed;
+    }
+
+    th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      background: var(--surface-soft);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 26px 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title-group">
+        <h1>Sustainability Score Dashboard</h1>
+        <p>Track weekly eco-habits, visualize progress, and get AI-assisted suggestions.</p>
+      </div>
+      <div class="formula-pill">
+        Formula: <code>recycling × 2 + transport − bottles</code>
+      </div>
+    </header>
+
+    <div class="grid-main">
+      <!-- Left Column: Input Form & AI Advice -->
+      <div>
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title" id="formTitle">Weekly Habit Check-in</h2>
+          </div>
+
+          <form id="habitForm" novalidate>
+            <div class="field">
+              <label for="bottlesInput">Plastic bottles used</label>
+              <input id="bottlesInput" type="number" min="0" step="1" value="0" required />
+              <small>Penalty: −1 point each</small>
+            </div>
+
+            <div class="field">
+              <label for="transportInput">Public transport trips</label>
+              <input id="transportInput" type="number" min="0" step="1" value="0" required />
+              <small>Bonus: +1 point each</small>
+            </div>
+
+            <div class="field">
+              <label for="recyclingInput">Recycling occasions</label>
+              <input id="recyclingInput" type="number" min="0" step="1" value="0" required />
+              <small>Bonus: +2 points each</small>
+            </div>
+
+            <div class="field">
+              <label for="dateInput">Record date</label>
+              <input id="dateInput" type="date" />
+            </div>
+
+            <div class="preview-box">
+              <div class="preview-top">
+                <div>
+                  <span style="font-size:0.8rem;color:var(--muted);display:block;">Live Score Preview</span>
+                  <span class="preview-score" id="previewScore">0</span>
+                </div>
+                <span class="badge badge-fair" id="previewRating">Fair</span>
+              </div>
+              <div class="preview-breakdown" id="previewBreakdown">
+                Recycling +0 · Transport +0 · Bottles −0
+              </div>
+            </div>
+
+            <label class="checkbox-row" id="aiToggleRow">
+              <input type="checkbox" id="generateAiCheckbox" checked />
+              <span>Generate AI advice on save (uses GEMINI_API_KEY if set)</span>
+            </label>
+
+            <div class="btn-row">
+              <button type="submit" class="btn-primary" id="submitBtn">Save Record</button>
+              <button type="button" class="btn-secondary" id="cancelEditBtn" style="display:none;">Cancel</button>
+            </div>
+
+            <div class="status-banner" id="statusBanner"></div>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">AI Habit Advice</h2>
+            <button type="button" class="btn-secondary btn-small" id="refreshAdviceBtn">Get Advice</button>
+          </div>
+          <div class="advice-box" id="adviceBox">Save a record or click "Get Advice" to generate two practical suggestions based on your current habit inputs.</div>
+        </section>
+      </div>
+
+      <!-- Right Column: KPIs, Chart & History Table -->
+      <div>
+        <section class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Records</div>
+            <div class="kpi-value" id="kpiCount">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Average</div>
+            <div class="kpi-value" id="kpiAverage">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Highest</div>
+            <div class="kpi-value" id="kpiHighest">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Lowest</div>
+            <div class="kpi-value" id="kpiLowest">—</div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Score Trend</h2>
+            <span style="font-size:0.8rem;color:var(--muted);">Dashed lines: 20 (Excellent), 10 (Good), 0 (Fair)</span>
+          </div>
+          <div class="chart-wrap" id="chartContainer">
+            <div class="empty-state" id="chartEmpty">No records yet to plot.</div>
+            <svg class="chart-svg" id="chartSvg" viewBox="0 0 680 250" style="display:none;"></svg>
+            <div class="chart-tooltip" id="chartTooltip"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">History</h2>
+            <button type="button" class="btn-danger-outline" id="undoLastBtn">Undo Last</button>
+          </div>
+          <div class="table-wrap" id="historyWrap"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      records: [],
+      editingWeek: null,
+    };
+
+    const bottlesInput = document.getElementById("bottlesInput");
+    const transportInput = document.getElementById("transportInput");
+    const recyclingInput = document.getElementById("recyclingInput");
+    const dateInput = document.getElementById("dateInput");
+    const generateAiCheckbox = document.getElementById("generateAiCheckbox");
+    const aiToggleRow = document.getElementById("aiToggleRow");
+    const formTitle = document.getElementById("formTitle");
+    const submitBtn = document.getElementById("submitBtn");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+    const statusBanner = document.getElementById("statusBanner");
+    const adviceBox = document.getElementById("adviceBox");
+    const refreshAdviceBtn = document.getElementById("refreshAdviceBtn");
+    const undoLastBtn = document.getElementById("undoLastBtn");
+
+    function todayISO() {
+      const now = new Date();
+      const offsetMs = now.getTimezoneOffset() * 60000;
+      return new Date(now.getTime() - offsetMs).toISOString().slice(0, 10);
+    }
+
+    dateInput.value = todayISO();
+
+    function ratingInfo(score) {
+      if (score >= 20) return { label: "Excellent", cls: "badge-excellent", color: "#15803d" };
+      if (score >= 10) return { label: "Good", cls: "badge-good", color: "#1d4ed8" };
+      if (score >= 0) return { label: "Fair", cls: "badge-fair", color: "#b45309" };
+      return { label: "Needs Improvement", cls: "badge-needs", color: "#b91c1c" };
+    }
+
+    function parseNonNegInt(inputEl) {
+      const raw = inputEl.value.trim();
+      if (!/^\d+$/.test(raw)) return null;
+      const val = Number(raw);
+      return Number.isSafeInteger(val) && val >= 0 ? val : null;
+    }
+
+    function updateLivePreview() {
+      const bottles = parseNonNegInt(bottlesInput);
+      const transport = parseNonNegInt(transportInput);
+      const recycling = parseNonNegInt(recyclingInput);
+
+      const previewScore = document.getElementById("previewScore");
+      const previewRating = document.getElementById("previewRating");
+      const previewBreakdown = document.getElementById("previewBreakdown");
+
+      if (bottles === null || transport === null || recycling === null) {
+        previewScore.textContent = "—";
+        previewRating.textContent = "Invalid input";
+        previewRating.className = "badge badge-needs";
+        previewBreakdown.textContent = "Enter non-negative integers for all three habits.";
+        return;
+      }
+
+      const score = recycling * 2 + transport - bottles;
+      const info = ratingInfo(score);
+      previewScore.textContent = String(score);
+      previewRating.textContent = info.label;
+      previewRating.className = "badge " + info.cls;
+      previewBreakdown.textContent = `Recycling +${recycling * 2} · Transport +${transport} · Bottles −${bottles}`;
+    }
+
+    function showStatus(message, type) {
+      statusBanner.textContent = message;
+      statusBanner.className = `status-banner show ${type}`;
+    }
+
+    function clearStatus() {
+      statusBanner.className = "status-banner";
+      statusBanner.textContent = "";
+    }
+
+    function setEditMode(record) {
+      state.editingWeek = record.week;
+      formTitle.textContent = `Edit Week ${record.week}`;
+      submitBtn.textContent = `Update Week ${record.week}`;
+      cancelEditBtn.style.display = "inline-block";
+      aiToggleRow.style.display = "none";
+
+      bottlesInput.value = record.plastic_bottles ?? 0;
+      transportInput.value = record.public_transport ?? 0;
+      recyclingInput.value = record.recycling ?? 0;
+      dateInput.value = record.date || todayISO();
+      updateLivePreview();
+      clearStatus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function exitEditMode() {
+      state.editingWeek = null;
+      formTitle.textContent = "Weekly Habit Check-in";
+      submitBtn.textContent = "Save Record";
+      cancelEditBtn.style.display = "none";
+      aiToggleRow.style.display = "flex";
+      dateInput.value = todayISO();
+    }
+
+    function renderStats(stats) {
+      const countEl = document.getElementById("kpiCount");
+      const avgEl = document.getElementById("kpiAverage");
+      const highEl = document.getElementById("kpiHighest");
+      const lowEl = document.getElementById("kpiLowest");
+
+      if (!stats) {
+        countEl.textContent = "0";
+        avgEl.textContent = "—";
+        highEl.textContent = "—";
+        lowEl.textContent = "—";
+        return;
+      }
+
+      countEl.textContent = String(stats.count);
+      avgEl.textContent = Number(stats.average).toFixed(2);
+      highEl.textContent = String(stats.highest);
+      lowEl.textContent = String(stats.lowest);
+    }
+
+    function createSvgEl(tag, attrs = {}) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        el.setAttribute(k, String(v));
+      }
+      return el;
+    }
+
+    function renderChart(records) {
+      const svg = document.getElementById("chartSvg");
+      const empty = document.getElementById("chartEmpty");
+      const tooltip = document.getElementById("chartTooltip");
+      tooltip.style.display = "none";
+
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      if (!records || records.length === 0) {
+        svg.style.display = "none";
+        empty.style.display = "block";
+        return;
+      }
+
+      svg.style.display = "block";
+      empty.style.display = "none";
+
+      const width = 680;
+      const height = 250;
+      const pad = { top: 20, right: 24, bottom: 36, left: 44 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      const scores = records.map(r => r.score);
+      const minVal = Math.min(...scores, 0);
+      const maxVal = Math.max(...scores, 20);
+      const span = Math.max(maxVal - minVal, 10);
+      const yMin = minVal - span * 0.12;
+      const yMax = maxVal + span * 0.12;
+
+      const xPos = idx => (records.length === 1 ? pad.left + plotW / 2 : pad.left + (idx / (records.length - 1)) * plotW);
+      const yPos = val => pad.top + ((yMax - val) / (yMax - yMin)) * plotH;
+
+      // Threshold reference lines
+      [
+        { val: 20, color: "#86efac", label: "20" },
+        { val: 10, color: "#93c5fd", label: "10" },
+        { val: 0, color: "#fcd34d", label: "0" },
+      ].forEach(ref => {
+        if (ref.val >= yMin && ref.val <= yMax) {
+          const y = yPos(ref.val);
+          svg.appendChild(createSvgEl("line", {
+            x1: pad.left, y1: y, x2: width - pad.right, y2: y,
+            stroke: ref.color, "stroke-width": 1.4, "stroke-dasharray": "5 4",
+          }));
+          const lbl = createSvgEl("text", {
+            x: pad.left - 8, y: y + 4, "text-anchor": "end",
+            fill: "#64748b", "font-size": 11,
+          });
+          lbl.textContent = ref.label;
+          svg.appendChild(lbl);
+        }
+      });
+
+      // Axes
+      svg.appendChild(createSvgEl("line", {
+        x1: pad.left, y1: pad.top, x2: pad.left, y2: height - pad.bottom,
+        stroke: "#cbd5e1", "stroke-width": 1.2,
+      }));
+      svg.appendChild(createSvgEl("line", {
+        x1: pad.left, y1: height - pad.bottom, x2: width - pad.right, y2: height - pad.bottom,
+        stroke: "#cbd5e1", "stroke-width": 1.2,
+      }));
+
+      // Polyline
+      if (records.length > 1) {
+        const pts = records.map((r, i) => `${xPos(i)},${yPos(r.score)}`).join(" ");
+        svg.appendChild(createSvgEl("polyline", {
+          points: pts,
+          fill: "none",
+          stroke: "#15803d",
+          "stroke-width": 2.6,
+          "stroke-linejoin": "round",
+          "stroke-linecap": "round",
+        }));
+      }
+
+      // X-axis step to prevent crowding
+      const labelStep = records.length > 12 ? Math.ceil(records.length / 10) : 1;
+
+      records.forEach((rec, idx) => {
+        const cx = xPos(idx);
+        const cy = yPos(rec.score);
+        const info = ratingInfo(rec.score);
+
+        if (idx % labelStep === 0 || idx === records.length - 1) {
+          const xLbl = createSvgEl("text", {
+            x: cx, y: height - pad.bottom + 18, "text-anchor": "middle",
+            fill: "#475569", "font-size": 11,
+          });
+          xLbl.textContent = `W${rec.week}`;
+          svg.appendChild(xLbl);
+        }
+
+        const circle = createSvgEl("circle", {
+          cx, cy, r: 5.5, fill: info.color, stroke: "#ffffff", "stroke-width": 2,
+          style: "cursor:pointer;",
+        });
+
+        circle.addEventListener("mouseenter", () => {
+          const details = rec.plastic_bottles !== null
+            ? `\nBottles: ${rec.plastic_bottles}, Transport: ${rec.public_transport}, Recycling: ${rec.recycling}`
+            : "";
+          tooltip.textContent = `Week ${rec.week}${rec.date ? " (" + rec.date + ")" : ""}\nScore: ${rec.score} (${rec.rating})${details}`;
+          tooltip.style.display = "block";
+          const svgRect = svg.getBoundingClientRect();
+          const containerRect = document.getElementById("chartContainer").getBoundingClientRect();
+          const left = (cx / width) * svgRect.width + (svgRect.left - containerRect.left) + 10;
+          const top = (cy / height) * svgRect.height - 14;
+          tooltip.style.left = `${Math.min(left, containerRect.width - 210)}px`;
+          tooltip.style.top = `${Math.max(top, 4)}px`;
+        });
+
+        circle.addEventListener("mouseleave", () => {
+          tooltip.style.display = "none";
+        });
+
+        svg.appendChild(circle);
+      });
+    }
+
+    function renderHistory(records) {
+      const wrap = document.getElementById("historyWrap");
+      while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
+      undoLastBtn.disabled = !records || records.length === 0;
+
+      if (!records || records.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No sustainability records yet. Add your first week on the left!";
+        wrap.appendChild(empty);
+        return;
+      }
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      ["Week", "Date", "Bottles", "Transport", "Recycling", "Score", "Rating", "Actions"].forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      [...records].reverse().forEach(rec => {
+        const tr = document.createElement("tr");
+
+        const cells = [
+          `#${rec.week}`,
+          rec.date || "—",
+          rec.plastic_bottles !== null ? String(rec.plastic_bottles) : "—",
+          rec.public_transport !== null ? String(rec.public_transport) : "—",
+          rec.recycling !== null ? String(rec.recycling) : "—",
+          String(rec.score),
+        ];
+
+        cells.forEach((val, idx) => {
+          const td = document.createElement("td");
+          td.textContent = val;
+          if (idx === 5) td.style.fontWeight = "700";
+          tr.appendChild(td);
+        });
+
+        const ratingTd = document.createElement("td");
+        const badge = document.createElement("span");
+        const info = ratingInfo(rec.score);
+        badge.className = "badge " + info.cls;
+        badge.textContent = rec.rating;
+        ratingTd.appendChild(badge);
+        tr.appendChild(ratingTd);
+
+        const actionsTd = document.createElement("td");
+        actionsTd.className = "actions-cell";
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn-secondary btn-small";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => setEditMode(rec));
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-danger-outline btn-small";
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => deleteWeek(rec.week));
+
+        actionsTd.appendChild(editBtn);
+        actionsTd.appendChild(delBtn);
+        tr.appendChild(actionsTd);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+    }
+
+    async function apiFetch(url, options = {}) {
+      const res = await fetch(url, {
+        headers: { "Content-Type": "application/json" },
+        ...options,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
+      return data;
+    }
+
+    function applyState(data) {
+      state.records = data.records || [];
+      renderStats(data.statistics);
+      renderChart(state.records);
+      renderHistory(state.records);
+    }
+
+    async function loadDashboard() {
+      try {
+        const data = await apiFetch("/api/records");
+        applyState(data);
+      } catch (err) {
+        showStatus(err.message, "error");
+      }
+    }
+
+    async function deleteWeek(week) {
+      if (!window.confirm(`Delete Week ${week} record?`)) return;
+      clearStatus();
+      try {
+        const data = await apiFetch(`/api/records/${week}`, { method: "DELETE" });
+        if (state.editingWeek === week) exitEditMode();
+        applyState(data);
+        showStatus(`Week ${week} record deleted.`, "success");
+      } catch (err) {
+        showStatus(err.message, "error");
+      }
+    }
+
+    undoLastBtn.addEventListener("click", async () => {
+      if (!state.records.length) return;
+      const last = state.records[state.records.length - 1];
+      if (!window.confirm(`Undo last record (Week ${last.week})?`)) return;
+      clearStatus();
+      try {
+        const data = await apiFetch("/api/records/last", { method: "DELETE" });
+        if (state.editingWeek === last.week) exitEditMode();
+        applyState(data);
+        showStatus(`Removed Week ${data.removed.week} record.`, "success");
+      } catch (err) {
+        showStatus(err.message, "error");
+      }
+    });
+
+    cancelEditBtn.addEventListener("click", () => {
+      exitEditMode();
+      clearStatus();
+    });
+
+    refreshAdviceBtn.addEventListener("click", async () => {
+      const bottles = parseNonNegInt(bottlesInput);
+      const transport = parseNonNegInt(transportInput);
+      const recycling = parseNonNegInt(recyclingInput);
+      if (bottles === null || transport === null || recycling === null) {
+        showStatus("Please enter non-negative integers before requesting advice.", "error");
+        return;
+      }
+      refreshAdviceBtn.disabled = true;
+      adviceBox.textContent = "Generating AI advice...";
+      try {
+        const data = await apiFetch("/api/advice", {
+          method: "POST",
+          body: JSON.stringify({
+            plastic_bottles: bottles,
+            public_transport: transport,
+            recycling: recycling,
+          }),
+        });
+        adviceBox.textContent = data.advice;
+      } catch (err) {
+        adviceBox.textContent = err.message;
+      } finally {
+        refreshAdviceBtn.disabled = false;
+      }
+    });
+
+    document.getElementById("habitForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      clearStatus();
+
+      const bottles = parseNonNegInt(bottlesInput);
+      const transport = parseNonNegInt(transportInput);
+      const recycling = parseNonNegInt(recyclingInput);
+      if (bottles === null || transport === null || recycling === null) {
+        showStatus("All three habit inputs must be non-negative integers.", "error");
+        return;
+      }
+
+      const payload = {
+        plastic_bottles: bottles,
+        public_transport: transport,
+        recycling: recycling,
+        date: dateInput.value || null,
+      };
+
+      submitBtn.disabled = true;
+      try {
+        if (state.editingWeek !== null) {
+          const week = state.editingWeek;
+          const data = await apiFetch(`/api/records/${week}`, {
+            method: "PUT",
+            body: JSON.stringify(payload),
+          });
+          applyState(data);
+          exitEditMode();
+          showStatus(`Week ${week} record updated successfully!`, "success");
+        } else {
+          payload.generate_ai = generateAiCheckbox.checked;
+          if (payload.generate_ai) {
+            adviceBox.textContent = "Generating AI advice...";
+          }
+          const data = await apiFetch("/api/records", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+          applyState(data);
+          if (data.advice) {
+            adviceBox.textContent = data.advice;
+          }
+          showStatus(`Week ${data.week} record saved successfully!`, "success");
+        }
+      } catch (err) {
+        showStatus(err.message, "error");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    [bottlesInput, transportInput, recyclingInput].forEach(el => {
+      el.addEventListener("input", updateLivePreview);
+    });
+
+    updateLivePreview();
+    loadDashboard();
+  </script>
+</body>
+</html>
